@@ -6,7 +6,7 @@ from geopy.geocoders import Nominatim
 import time
 from utils.news_alerts import fetch_road_alerts
 
-ORS_API_KEY = "5b3ce3597851110001cf62486522fea67ba4425d8395a16430a89041"
+ORS_API_KEY = "ORS_API_KEY_HERE"
 
 def get_coordinates_from_city(city_name):
     try:
