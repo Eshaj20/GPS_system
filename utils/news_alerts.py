@@ -1,7 +1,7 @@
 import requests
 import os
 
-NEWS_API_KEY = os.getenv("NEWS_API_KEY") or "2fab7d696ae74f1194aeead67a029740"
+NEWS_API_KEY = os.getenv("NEWS_API_KEY") or "NEWS_API_KEY_HERE"
 
 def fetch_road_alerts(city_or_list):
     if isinstance(city_or_list, str):
