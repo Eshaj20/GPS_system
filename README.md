@@ -59,3 +59,10 @@ main.py
 README.md
 requirements.txt
 route_map.html
+```
+## Run python file
+            python main.py
+
+
+
+
