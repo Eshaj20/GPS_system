@@ -62,7 +62,3 @@ route_map.html
 ```
 ## Run python file
             python main.py
-
-
-
-
