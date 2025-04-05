@@ -4,7 +4,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 
 # Load dataset
-data = pd.read_csv(r"C:\Users\eshaa\GPS_system\data\historical_traffic.csv")  # Relative to project root
+data = pd.read_csv(r"path_to_csv_file")  # Relative to project root
 
 # Convert timestamp to datetime object
 data["timestamp"] = pd.to_datetime(data["timestamp"])
