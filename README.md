@@ -30,4 +30,32 @@ A **Streamlit-based GPS system** that:
 ---
 
 ## 📁 Project Structure
-
+```bash
+algorithms/
+├── __pycache__/
+├── dijkstra.py
+├── ml_route_predict.py
+data/
+├── historical_traffic.csv
+├── sample_map.json
+GPS_system/
+README.md
+graph/
+├── __pycache__/
+├── graph.py
+├── union_find.py
+ml_model/
+├── __pycache__/
+├── predict_route.py
+├── route_model.pk1
+├── train_model.py
+utils/
+├── __pycache__/
+├── news_alerts.py
+├── visualizer.py
+app.py
+elevation_profile.png
+main.py
+README.md
+requirements.txt
+route_map.html
