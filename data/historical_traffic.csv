@@ -1,0 +1,11 @@
+timestamp,source,destination,weather,traffic_density,duration
+2023-04-01 08:00:00,A,B,Clear,Low,15
+2023-04-01 08:05:00,A,B,Clear,Medium,18
+2023-04-01 08:10:00,A,C,Rain,High,35
+2023-04-01 08:15:00,B,C,Fog,High,40
+2023-04-01 08:20:00,C,D,Clear,Low,12
+2023-04-01 08:25:00,D,A,Rain,Medium,22
+2023-04-01 08:30:00,A,B,Fog,High,28
+2023-04-01 08:35:00,C,B,Clear,Low,16
+2023-04-01 08:40:00,B,D,Rain,High,33
+2023-04-01 08:45:00,A,D,Clear,Medium,20
