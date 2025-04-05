@@ -2,7 +2,7 @@ import pickle
 import pandas as pd
 
 # Load the trained model
-with open(r"C:\Users\eshaa\GPS_system\ml_model\route_model.pkl", "rb") as file:
+with open(r"path_to_trained_model", "rb") as file:
     model = pickle.load(file)
 
 def predict_route(time_of_day, day_of_week, weather, traffic_density):
