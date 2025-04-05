@@ -62,3 +62,16 @@ route_map.html
 ```
 ## Run python file
             python main.py
+
+## Install dependencies
+            pip install -r requirements.txt
+
+## Add your API keys
+
+Create a .env file:
+
+            ORS_API_KEY=your_openrouteservice_key
+            NEWS_API_KEY=your_newsapi_key
+            
+## Run the app
+           streamlit run app.py
