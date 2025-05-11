@@ -21,7 +21,6 @@ A **Streamlit-based GPS system** that:
 ## 🧰 Tech Stack
 
 - Python 3.8+
-- Streamlit
 - OpenRouteService API
 - NewsAPI
 - Folium (map visualization)
@@ -69,10 +68,16 @@ route_map.html
 
 ## Add your API keys
 
-Create a .env file:
+- Create a .env file:
 
             ORS_API_KEY=your_openrouteservice_key
             NEWS_API_KEY=your_newsapi_key
             
-## Run the app
-           streamlit run app.py
+## 📌 Future Enhancements
+
+- Enhanced Routing Algorithms: Incorporate additional algorithms for improved route optimization.
+- User Preferences: Allow users to set preferences (e.g., avoid tolls, prefer highways).
+- Mobile Responsiveness: Optimize the application for mobile devices.
+- Historical Traffic Data: Integrate historical traffic patterns for better predictions.
+
+
