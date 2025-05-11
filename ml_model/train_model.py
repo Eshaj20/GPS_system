@@ -2,9 +2,9 @@ import pandas as pd
 import pickle
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
-
+from sklearn.metrics import accuracy_score
 # Load dataset
-data = pd.read_csv(r"path_to_csv_file")  # Relative to project root
+data = pd.read_csv(r"path_to_CSV_file")  # Relative to project root
 
 # Convert timestamp to datetime object
 data["timestamp"] = pd.to_datetime(data["timestamp"])
@@ -31,7 +31,12 @@ model = RandomForestRegressor()
 model.fit(X_train, y_train)
 
 # Save model
-with open("ml_model/route_model.pkl", "wb") as file:
+with open("route_model.pkl", "wb") as file:
     pickle.dump(model, file)
 
 print("✅ Model trained and saved successfully!")
+
+# Save column names used in training
+with open("model_columns.pkl", "wb") as f:
+    pickle.dump(X.columns.tolist(), f)
+
