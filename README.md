@@ -37,8 +37,6 @@ algorithms/
 data/
 ├── historical_traffic.csv
 ├── sample_map.json
-GPS_system/
-README.md
 graph/
 ├── __pycache__/
 ├── graph.py
