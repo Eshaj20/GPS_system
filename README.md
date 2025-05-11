@@ -49,6 +49,7 @@ ml_model/
 ├── predict_route.py
 ├── route_model.pk1
 ├── train_model.py
+├── model_columns.pk1
 utils/
 ├── __pycache__/
 ├── news_alerts.py
