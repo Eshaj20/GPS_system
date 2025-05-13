@@ -1,6 +1,5 @@
-# 🛰️ Smart GPS Routing System
+## Smart GPS Routing System
 
-A **Streamlit-based GPS system** that:
 - Calculates the best driving route between two cities
 - Displays an interactive route map (`route_map.html`)
 - Detects intermediate cities using reverse geocoding
@@ -8,17 +7,17 @@ A **Streamlit-based GPS system** that:
 
 ---
 
-## 🚀 Features
+# Features
 
-- 🗺️ Route plotting with OpenRouteService
-- 📍 Dynamic map with intermediate waypoints
-- 🏙️ City detection along the path
-- 🚦 Live traffic alerts from NewsAPI
-- 🔍 Filters out irrelevant news (e.g., airport alerts)
+- Route plotting with OpenRouteService
+- Dynamic map with intermediate waypoints
+- City detection along the path
+- Live traffic alerts from NewsAPI
+- Filters out irrelevant news (e.g., airport alerts)
 
 ---
 
-## 🧰 Tech Stack
+# Tech Stack
 
 - Python 3.8+
 - OpenRouteService API
@@ -28,7 +27,7 @@ A **Streamlit-based GPS system** that:
 
 ---
 
-## 📁 Project Structure
+# Project Structure
 ```bash
 algorithms/
 ├── __pycache__/
@@ -58,20 +57,20 @@ README.md
 requirements.txt
 route_map.html
 ```
-## Run python file
+# Run python file
             python main.py
 
-## Install dependencies
+# Install dependencies
             pip install -r requirements.txt
 
-## Add your API keys
+# Add your API keys
 
-- Create a .env file:
+Create a .env file:
 
             ORS_API_KEY=your_openrouteservice_key
             NEWS_API_KEY=your_newsapi_key
             
-## 📌 Future Enhancements
+# Future Enhancements
 
 - Enhanced Routing Algorithms: Incorporate additional algorithms for improved route optimization.
 - User Preferences: Allow users to set preferences (e.g., avoid tolls, prefer highways).
