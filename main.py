@@ -20,9 +20,10 @@ def get_coordinates_from_city(city_name):
     except Exception as e:
         print(f"❌ Error getting coordinates for {city_name}: {e}")
         return None
+
 def get_city_name(lat, lon):
     try:
-        geolocator = Nominatim(user_agent="VisionAssist/1.0 (esha@example.com)")  # 👈 Updated
+        geolocator = Nominatim(user_agent="VisionAssist/1.0 (esha@example.com)")
         location = geolocator.reverse((lat, lon), exactly_one=True, timeout=10)
         address = location.raw.get('address', {})
         city = (
@@ -40,20 +41,24 @@ def get_city_name(lat, lon):
         print(f"❌ Reverse geocoding error at [{lat}, {lon}]: {e}")
         return "Unknown"
 
-
-def get_route_from_ors(source_coords, destination_coords):
+def get_route_from_ors(source_coords, destination_coords, avoid_polygons=None):
     try:
         client = openrouteservice.Client(key=ORS_API_KEY)
         coords = [source_coords, destination_coords]
 
-        route = client.directions(
-            coordinates=coords,
-            profile='driving-car',
-            format='geojson',
-            optimize_waypoints=True,
-            validate=True,
-            elevation=True
-        )
+        params = {
+            "coordinates": coords,
+            "profile": "driving-car",
+            "format": "geojson",
+            "optimize_waypoints": True,
+            "validate": True,
+            "elevation": True,
+        }
+
+        if avoid_polygons:
+            params["options"] = {"avoid_polygons": avoid_polygons}
+
+        route = client.directions(**params)
         print("✅ Route fetched successfully!")
         return route
     except openrouteservice.exceptions.HttpError as e:
@@ -61,12 +66,11 @@ def get_route_from_ors(source_coords, destination_coords):
     except Exception as e:
         print("❌ Unexpected Error:", e)
 
-def plot_route_on_map(route, source_coords, destination_coords):
+def plot_route_on_map(route, source_coords, destination_coords, filename="route_map.html"):
     source_coords_latlon = [source_coords[1], source_coords[0]]
     destination_coords_latlon = [destination_coords[1], destination_coords[0]]
 
     m = folium.Map(location=source_coords_latlon, zoom_start=12)
-
     folium.Marker(location=source_coords_latlon, tooltip="Start", icon=folium.Icon(color='green')).add_to(m)
     folium.Marker(location=destination_coords_latlon, tooltip="End", icon=folium.Icon(color='red')).add_to(m)
 
@@ -79,21 +83,18 @@ def plot_route_on_map(route, source_coords, destination_coords):
         ).add_to(m)
 
     folium.LayerControl().add_to(m)
-    m.save("route_map.html")
-    print("✅ Map saved as route_map.html")
+    m.save(filename)
+    print(f"✅ Map saved as {filename}")
 
 def get_route_details(route):
     summary = route["features"][0]["properties"]["summary"]
     distance_km = summary["distance"] / 1000
     duration_min = summary["duration"] / 60
-
     print(f"🚗 Estimated Distance: {distance_km:.2f} km")
     print(f"⏳ Estimated Duration: {duration_min:.2f} mins")
-    print("🔔 Checking for roadblock/closure alerts...")
 
 def plot_elevation_profile(route):
     coordinates = route["features"][0]["geometry"]["coordinates"]
-
     distances = [0]
     elevations = [coordinates[0][2]]
 
@@ -105,7 +106,6 @@ def plot_elevation_profile(route):
         elevations.append(curr[2])
 
     distances_km = [d / 1000 for d in distances]
-
     plt.figure(figsize=(10, 4))
     plt.plot(distances_km, elevations, color='brown')
     plt.title("Elevation Profile")
@@ -120,14 +120,38 @@ def plot_elevation_profile(route):
 def show_city_alerts(cities):
     print("\n🚧 Checking for live traffic alerts...\n")
     alerts_by_city = fetch_road_alerts(cities)
+    affected_cities = []
 
     for city in cities:
         if city in alerts_by_city and alerts_by_city[city]:
             print(f"\n🛑 Alerts for {city}:")
             for alert in alerts_by_city[city]:
                 print(f" - {alert['title']} ({alert['source']}, {alert['publishedAt'][:10]})\n   🔗 {alert['url']}")
+            affected_cities.append(city)
         else:
             print(f"✅ No alerts for {city}")
+
+    return affected_cities
+
+def get_city_polygon(city_name):
+    """Get bounding polygon for a city (simplified as a buffer around its coordinates)."""
+    coords = get_coordinates_from_city(city_name)
+    if not coords:
+        return None
+    lon, lat = coords
+    # Simple square polygon (0.02 deg ~ 2 km buffer) around the city center
+    buffer = 0.02
+    polygon = {
+        "type": "Polygon",
+        "coordinates": [[
+            [lon-buffer, lat-buffer],
+            [lon-buffer, lat+buffer],
+            [lon+buffer, lat+buffer],
+            [lon+buffer, lat-buffer],
+            [lon-buffer, lat-buffer]
+        ]]
+    }
+    return polygon
 
 if __name__ == "__main__":
     source_city = input("Enter source city name: ")
@@ -139,20 +163,15 @@ if __name__ == "__main__":
     if not source or not destination:
         print("❌ Unable to fetch both source and destination coordinates.")
     else:
-        print("📡 Fetching route...")
+        print("📡 Fetching initial route...")
         route = get_route_from_ors(source, destination)
 
         if route:
-            print("\n🗺️ Plotting route...")
-            plot_route_on_map(route, source, destination)
-
-            print("\n📏 Getting route details...")
+            print("\n🗺️ Plotting initial route...")
+            plot_route_on_map(route, source, destination, "route_initial.html")
             get_route_details(route)
-
-            print("\n⛰️ Plotting elevation profile...")
             plot_elevation_profile(route)
 
-            # 🧠 Guessing intermediate cities along the route
             print("\n🔍 Detecting intermediate cities on the route...")
             coords = route["features"][0]["geometry"]["coordinates"]
             sample_interval = max(len(coords) // 20, 1)
@@ -167,6 +186,20 @@ if __name__ == "__main__":
                 time.sleep(1.2)  # Respect rate limits
 
             if intermediate_cities:
-                show_city_alerts(list(intermediate_cities))
+                affected = show_city_alerts(list(intermediate_cities))
+
+                if affected:
+                    print("\n⚠️ Some cities have alerts! Re-routing to avoid them...")
+                    avoid_polygons = [get_city_polygon(c) for c in affected if get_city_polygon(c)]
+                    if avoid_polygons:
+                        route_alt = get_route_from_ors(source, destination, avoid_polygons={"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": p} for p in avoid_polygons]})
+                        if route_alt:
+                            plot_route_on_map(route_alt, source, destination, "route_alternate.html")
+                            get_route_details(route_alt)
+                        else:
+                            print("❌ Could not generate alternate route.")
+                else:
+                    print("✅ No affected cities, original route is safe.")
             else:
                 print("⚠️ No intermediate cities could be resolved.")
+
