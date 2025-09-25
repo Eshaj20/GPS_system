@@ -1,22 +1,23 @@
 import requests
 import os
 
-NEWS_API_KEY = os.getenv("NEWS_API_KEY") or "NEWS_API_KEY_HERE"
+# NewsAPI key (set as env var or fallback hardcoded key)
+NEWS_API_KEY = os.getenv("NEWS_API_KEY") 
 
-def fetch_road_alerts(city_or_list):
-    if isinstance(city_or_list, str):
-        cities = [city_or_list]
-    else:
-        cities = city_or_list
+def fetch_road_alerts(cities):
+    """
+    Fetch traffic/road alerts for intermediate cities only.
+    cities: list of city names (make sure source and destination are excluded before passing)
+    """
+    if isinstance(cities, str):
+        cities = [cities]
 
     alerts = []
 
-    # Keywords to include/exclude
     include_keywords = ["accident", "jam", "congestion", "crash", "roadblock", "closure", "traffic", "delay"]
     exclude_keywords = ["airport", "flight", "airline", "runway", "terminal", "salary", "pay", "hike"]
 
     for city in cities:
-        # Smart query for better matching
         query = f"{city} AND (traffic OR accident OR jam OR congestion OR crash OR roadblock OR closure OR delay)"
         url = (
             f"https://newsapi.org/v2/everything?"
@@ -25,7 +26,7 @@ def fetch_road_alerts(city_or_list):
         )
 
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=10)
             print(f"📡 NewsAPI response for {city}: {response.status_code}")
             data = response.json()
 
@@ -35,22 +36,27 @@ def fetch_road_alerts(city_or_list):
                     description = (article.get("description") or "").lower()
 
                     if (
-                        any(kw in title or kw in description for kw in include_keywords) and
-                        not any(bad_kw in title or bad_kw in description for bad_kw in exclude_keywords)
+                        any(kw in title or kw in description for kw in include_keywords)
+                        and not any(bad_kw in title or bad_kw in description for bad_kw in exclude_keywords)
                     ):
-                        alert = {
-                            "title": article["title"],
-                            "url": article["url"],
-                            "publishedAt": article["publishedAt"],
-                            "source": article["source"]["name"]
-                        }
-                        alerts.append((city, alert))
+                        alerts.append(
+                            (
+                                city,
+                                {
+                                    "title": article.get("title"),
+                                    "url": article.get("url"),
+                                    "publishedAt": article.get("publishedAt"),
+                                    "source": article["source"].get("name"),
+                                },
+                            )
+                        )
         except Exception as e:
             print(f"❌ Error fetching news for {city}: {e}")
 
-    # Group and sort alerts by city and recency
+    # Group & sort alerts by recency
     grouped_alerts = {}
     for city, alert in sorted(alerts, key=lambda x: x[1]["publishedAt"], reverse=True):
         grouped_alerts.setdefault(city, []).append(alert)
 
     return grouped_alerts
+
